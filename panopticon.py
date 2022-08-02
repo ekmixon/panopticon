@@ -73,7 +73,7 @@ def log_warning_rich(msg, rule):
     progress.console.print("[red]"+"[WARNING] "+"[/red]" + msg)
     progress.update(task2, advance=1)
     warnings_list.append(msg)
-    warning_rules.write("// " + msg + "\n")
+    warning_rules.write(f"// {msg}" + "\n")
     warning_rules.write(rule)
     warning_rules.write("\n")
 
@@ -148,12 +148,11 @@ def measure(yara_rule_string, cycles, progress, show_score=True, c_duration=0, r
         if count_mega_slow > 10:
             break
 
-    if c_duration and not rule_name == "Baseline":
+    if c_duration and rule_name != "Baseline":
         if diff_perc > alert_diff:
             log_warning_rich("Rule \"%s\" slows down a search with %d rules by %0.4f %% (Measured by best of %d runs)" % (rule_name, num_calib_rules, diff_perc , cycles ), single_rule)
-        else:
-            if show_score:
-                progress.console.print("[INFO   ] Rule: \"%s\" - Best of %d - duration: %.4f s (%0.4f s, %0.4f %%)" % (rule_name, cycles, min_duration, (min_duration-c_duration), diff_perc ))
+        elif show_score:
+            progress.console.print("[INFO   ] Rule: \"%s\" - Best of %d - duration: %.4f s (%0.4f s, %0.4f %%)" % (rule_name, cycles, min_duration, (min_duration-c_duration), diff_perc ))
     else:
         progress.console.print("[INFO   ] Rule: \"%s\" - best of %d - duration: %.4f s" % (rule_name, cycles, min_duration))
     return min_duration, count, diff_perc

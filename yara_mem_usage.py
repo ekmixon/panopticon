@@ -13,10 +13,13 @@ import resource
 import gc
 
 def get_used_mem(process):
-    proc_mem = int(process.memory_info().rss/1024) 
+    proc_mem = int(process.memory_info().rss/1024)
     res_get  = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
     if debug:
-        print("process.memory_info(): " +str(proc_mem) + " - resource.getrusage: " + str(res_get) )
+        print(
+            f"process.memory_info(): {proc_mem} - resource.getrusage: {str(res_get)}"
+        )
+
     return proc_mem, res_get
 
 
@@ -61,19 +64,20 @@ if __name__ == '__main__':
     if debug: print("Did garbage collection")
     before, before_res = get_used_mem(process)
 
-    if not args.thor:
-        rules = yara.compile(filepaths={ 'rules':rulesfile })
-    else:
-        rules = yara.compile(filepaths={
-              'rules':rulesfile
-                                    }, 
-                                        externals={
-                                            'filename': "",
-                                            'filepath': "",
-                                            'extension': "",
-                                            'filetype': "",
-                                            'md5': "",
-                                        })
+    rules = (
+        yara.compile(
+            filepaths={'rules': rulesfile},
+            externals={
+                'filename': "",
+                'filepath': "",
+                'extension': "",
+                'filetype': "",
+                'md5': "",
+            },
+        )
+        if args.thor
+        else yara.compile(filepaths={'rules': rulesfile})
+    )
 
     if debug: print("Compile rules to evaluate")
     after, after_res = get_used_mem(process)
